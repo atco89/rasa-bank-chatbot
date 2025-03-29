@@ -1,0 +1,156 @@
+services:
+
+  # --------------------------------------------------
+  # postgres:17.4-alpine3.20
+  # --------------------------------------------------
+  postgres:
+    container_name: postgres
+    image: postgres:17.4-alpine3.20
+    platform: ${APP_PLATFORM}
+    restart: unless-stopped
+    ports:
+      - "2345:5432"
+    volumes:
+      - ./database/postgres:/var/lib/postgresql/data:rw
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_PASSWORD}'" ]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+    networks:
+      backend:
+        ipv4_address: 10.0.0.2
+
+  # --------------------------------------------------
+  # adminer:5.0.6
+  # --------------------------------------------------
+  adminer:
+    container_name: adminer
+    image: adminer:5.0.6
+    platform: ${APP_PLATFORM}
+    restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DEFAULT_DB_HOST: postgres
+      ADMINER_DEFAULT_DB_NAME: ${POSTGRES_DB}
+      ADMINER_DESIGN: "pepa-linha"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080 || exit 1" ]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+    networks:
+      backend:
+        ipv4_address: 10.0.0.3
+
+  # --------------------------------------------------
+  # rasa/rasa-pro:3.11.4
+  # --------------------------------------------------
+  rasa-pro:
+    container_name: rasa-pro
+    build:
+      dockerfile: ./rasa-pro/Dockerfile
+      args:
+        - OPENAI_API_KEY
+        - RASA_PRO_LICENSE
+    platform: ${APP_PLATFORM}
+    restart: unless-stopped
+    ports:
+      - "5005:5005"
+    volumes:
+      - ./../rasa:/app:rw
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      backend:
+        ipv4_address: 10.0.0.4
+
+  # --------------------------------------------------
+  # rasa/rasa-sdk:3.11.0
+  # --------------------------------------------------
+  rasa-sdk:
+    container_name: rasa-sdk
+    build:
+      dockerfile: ./rasa-sdk/Dockerfile
+    platform: ${APP_PLATFORM}
+    restart: unless-stopped
+    ports:
+      - "5055:5055"
+    volumes:
+      - ./../rasa/actions:/app/actions:rw
+    depends_on:
+      - rasa-pro
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:5055/health || exit 1" ]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+    networks:
+      backend:
+        ipv4_address: 10.0.0.5
+
+  # --------------------------------------------------
+  # node:23.10.0-alpine3.20
+  # --------------------------------------------------
+  node:
+    container_name: node
+    build:
+      dockerfile: ./node/Dockerfile
+    platform: ${APP_PLATFORM}
+    restart: unless-stopped
+    volumes:
+      - ./../webchat:/app:rw
+    depends_on:
+      rasa-sdk:
+        condition: service_healthy
+    networks:
+      backend:
+        ipv4_address: 10.0.0.6
+
+  # --------------------------------------------------
+  # nginx:1.27.3-alpine3.20
+  # --------------------------------------------------
+  nginx:
+    container_name: nginx
+    build:
+      dockerfile: ./nginx/Dockerfile
+    platform: ${APP_PLATFORM}
+    restart: unless-stopped
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/logs:/var/log/nginx:rw
+      - ./../webchat/public:/var/www:rw
+    depends_on:
+      - node
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -k -f https://localhost || exit 1" ]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+    networks:
+      backend:
+        ipv4_address: 10.0.0.7
+
+# --------------------------------------------------
+# networks
+# --------------------------------------------------
+networks:
+  backend:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.0.0/16

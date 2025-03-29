@@ -1,0 +1,128 @@
+// Font styles
+.rw-widget-container {
+  * {
+    font-family: $font-main !important;
+  }
+}
+
+// Common styles for chat components
+.rw-client,
+.rw-response,
+.rw-conversation-container,
+.rw-reply {
+  border-radius: $border-radius-default !important;
+}
+
+.rw-client,
+.rw-response {
+  line-height: 1.35em !important;
+}
+
+// Background colors
+.rw-header,
+.rw-launcher,
+.rw-client,
+.rw-reply {
+  background-color: $color-primary-dark !important;
+}
+
+// Specific element styles
+.rw-title {
+  color: $color-white !important;
+}
+
+.rw-send-icon-ready {
+  fill: $color-primary !important;
+}
+
+.rw-reply {
+  border: $border-style-primary !important;
+}
+
+.rw-open-launcher {
+  width: 50px !important;
+}
+
+// Markdown styles
+.rw-markdown {
+  a {
+    font-weight: bold !important;
+  }
+}
+
+// Group message styles
+.rw-group-message.rw-from-response .rw-message:not(:first-child):not(:only-child).rw-with-avatar {
+  margin-left: 10px !important;
+}
+
+// Conversation container styles
+.rw-conversation-container {
+  .rw-replies {
+    margin: 10px 0 !important;
+  }
+
+  .rw-reply {
+    margin-right: 0.25rem !important;
+    box-shadow: 0 0 !important;
+    width: 100% !important;
+    text-align: left !important;
+    font-weight: normal !important;
+    max-width: 235px !important;
+    min-height: 2em !important;
+  }
+
+  .rw-message {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+  }
+
+  .rw-avatar {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    margin-top: 0.5rem !important;
+    margin-right: 0.75rem !important;
+    bottom: 0 !important;
+  }
+
+  .rw-response {
+    margin-top: 0.5rem !important;
+  }
+
+  .rw-header {
+    flex-wrap: wrap !important;
+    flex-direction: initial !important;
+    align-items: center !important;
+    justify-content: initial !important;
+
+    .rw-avatar {
+      margin: 0 0.75rem !important;
+      position: relative !important;
+      top: 0 !important;
+      left: 0 !important;
+    }
+
+    .rw-title {
+      color: #FFFFFF !important;
+      width: fit-content !important;
+      position: relative !important;
+      left: 0 !important;
+    }
+  }
+}
+
+.rw-launcher {
+  img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+  }
+}
+
+.rw-group-message.rw-from-response .rw-message:not(:first-child):not(:only-child) .rw-avatar {
+  display: inline-block !important;
+}
+
+.rw-image-frame {
+  border-radius: 5px !important;
+}

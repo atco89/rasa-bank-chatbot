@@ -1,0 +1,77 @@
+version: "3.1"
+
+slots:
+  credit_card_type:
+    type: categorical
+    values:
+      - Visa
+      - Master card
+      - American express
+    mappings:
+      - type: from_llm
+  
+  delivery_method:
+    type: categorical
+    values:
+      - Home
+      - Bank
+    mappings:
+      - type: from_llm
+
+  home_address:
+    type: text
+    mappings:
+      - type: from_llm
+  
+  confirm_recap:
+    type: bool
+    mappings:
+      - type: from_llm
+
+responses:
+  utter_ask_credit_card_type:
+    - text: |
+        Certainly, I can help you with that.
+        What kind of credit card you are looking to buy
+      buttons:
+        - title: "Visa"
+          payload: '/SetSlots(credit_card_type=Visa)'
+        - title: "Master card"
+          payload: '/SetSlots(credit_card_type=Master card)'
+        - title: "American express"
+          payload: '/SetSlots(credit_card_type=American express)'
+
+  utter_ask_delivery_method:
+    - text: |
+        Okay let’s move to the next step of the credit card purchase
+        Would you like your new credit card to be delivered
+      buttons:
+        - title: "at home"
+          payload: '/SetSlots(delivery_method=Home)'
+        - title: "to the closest bank near you"
+          payload: '/SetSlots(delivery_method=Bank)'
+
+  utter_ask_home_address:
+    - text: |
+        Understood!
+        Can you provide me your full address please?
+
+  utter_recap:
+    - text: |
+        Let’s make sure all information provided are in order:
+          - Credit card type: {credit_card_type}
+          - Delivery type: {delivery_method}
+          - Home address: {home_address}
+
+  utter_ask_confirm_recap:
+    - text: |
+        Can you confirm that all the information captured above is accurate:
+      buttons:
+        - title: "Yes"
+          payload: "/SetSlots(confirm_recap=True)"
+        - title: "No"
+          payload: "/SetSlots(confirm_recap=False)"
+
+  utter_credit_card_ordered:
+    - text: |
+        Your credit card has been successfully ordered.

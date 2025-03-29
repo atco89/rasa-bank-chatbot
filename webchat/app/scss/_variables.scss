@@ -1,0 +1,15 @@
+// Fonts
+$font-main: 'Roboto', sans-serif;
+
+// Colors
+$color-primary: #1976D2;
+$color-primary-dark: #0D47A1;
+$color-white: #FFFFFF;
+
+// Derived Colors
+$color-bg-primary: $color-primary;
+$color-icon-primary: $color-primary;
+
+// Border & Radius
+$border-radius-default: 5px;
+$border-style-primary: 1px solid $color-primary-dark;

@@ -1,0 +1,30 @@
+fixtures:
+  - customer_information: # name of the fixture must be provided and be unique
+      - customer_id: "125" # every fixture can contain multiple slot key-value pairs
+        # This will be helpful when to se user information
+
+test_cases:
+  - test_case: visa at home happy confirmed
+    steps:
+      - user: "I would like to purchase a credit card."
+        assertions:
+          - flow_started: "credit_card_purchase"
+          - bot_uttered:
+              utter_name: utter_ask_credit_card_type
+      - user: Visa
+        assertions:
+          - slot_was_set:
+              - name: "credit_card_type"
+                value: "Visa"
+          - action_executed: action_get_data_from_db
+          - slot_was_set:
+              - name: "check_access_status"
+                value: False
+          - bot_uttered:
+              utter_name: utter_dont_have_access
+          - bot_uttered:
+              utter_name: utter_ask_provide_account_id
+      - user: "Yes"
+        assertions:
+          - bot_uttered:
+              utter_name: utter_provide_account_id_from_db

@@ -1,0 +1,29 @@
+flows:
+  credit_card_purchase:
+    name: Credit card purchase
+    description: |
+      This flow handles credit card purchases by collecting the card type and delivery method. 
+      If "Home" is selected, a delivery address is gathered; otherwise, a branch is chosen. 
+      Finally, the order recap is reviewed and confirmed, leading to either a confirmation message or further assistance.
+    steps:
+      - collect: credit_card_type
+        ask_before_filling: True
+
+      - collect: delivery_method
+        ask_before_filling: True
+
+      - collect: home_address
+        ask_before_filling: True
+
+      - action: utter_recap
+
+      - collect: confirm_recap
+        ask_before_filling: True
+        next:
+          - if: slots.confirm_recap
+            then:
+              - action: utter_credit_card_ordered
+                next: "END"
+          - else:
+              - action: utter_more_help_needed_handoff_pattern
+                next: "END"

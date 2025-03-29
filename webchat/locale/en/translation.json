@@ -1,0 +1,11 @@
+{
+  "title": "Bank Chatbot (beta version)",
+  "noscript": "Your browser does not support JavaScript!",
+  "inputHint": "Enter a message ...",
+  "loadingText": "Loading ...",
+  "error": "Error",
+  "forbidden": "We're sorry, access to this content is not allowed.",
+  "notFound": "The content you requested was not found.",
+  "serverError": "We're sorry, an error has occurred. Please try again later.",
+  "methodNotAllowed": "We're sorry, this request is not allowed."
+}

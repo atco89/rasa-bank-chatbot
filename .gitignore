@@ -1,0 +1,16 @@
+.DS_Store
+.idea
+
+docker/database/postgres
+docker/nginx/logs
+docker/.env
+
+rasa/.cache
+rasa/.config
+rasa/.keras
+rasa/.rasa
+rasa//models
+rasa/out.log
+
+webchat/node_modules
+webchat/public
