@@ -136,7 +136,6 @@ setup:
 
 .PHONY: build # Build and start Docker containers.
 build:
-	RASA_PRO_BETA_E2E_ASSERTIONS=1 \
 	DOCKER_BUILDKIT=1 \
 	APP_PLATFORM=$(APP_PLATFORM) \
 	docker compose \

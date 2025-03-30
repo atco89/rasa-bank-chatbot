@@ -1,30 +1,84 @@
-fixtures:
-  - customer_information: # name of the fixture must be provided and be unique
-      - customer_id: "125" # every fixture can contain multiple slot key-value pairs
-        # This will be helpful when to se user information
-
 test_cases:
-  - test_case: visa at home happy confirmed
+  - test_case: "Credit card purchase (happy path)"
     steps:
-      - user: "I would like to purchase a credit card."
+      - user: "Hi! I would like to purchase a credit card."
         assertions:
           - flow_started: "credit_card_purchase"
           - bot_uttered:
-              utter_name: utter_ask_credit_card_type
-      - user: Visa
+              utter_name: "utter_ask_credit_card_type"
+
+      - user: "Visa"
         assertions:
           - slot_was_set:
               - name: "credit_card_type"
                 value: "Visa"
-          - action_executed: action_get_data_from_db
+          - bot_uttered:
+              utter_name: "utter_ask_delivery_method"
+
+      - user: "at home"
+        assertions:
           - slot_was_set:
-              - name: "check_access_status"
-                value: False
+              - name: "delivery_method"
+                value: "Home"
           - bot_uttered:
-              utter_name: utter_dont_have_access
+              utter_name: "utter_ask_home_address"
+
+      - user: "123 Main St"
+        assertions:
+          - slot_was_set:
+              - name: "home_address"
+                value: "123 Main St"
           - bot_uttered:
-              utter_name: utter_ask_provide_account_id
+              utter_name: "utter_recap"
+          - bot_uttered:
+              utter_name: "utter_ask_confirm_recap"
+
       - user: "Yes"
         assertions:
+          - slot_was_set:
+              - name: "confirm_recap"
+                value: true
           - bot_uttered:
-              utter_name: utter_provide_account_id_from_db
+              utter_name: "utter_credit_card_ordered"
+
+  - test_case: "Credit card purchase (unhappy path)"
+    steps:
+      - user: "Hi! I would like to purchase a credit card."
+        assertions:
+          - flow_started: "credit_card_purchase"
+          - bot_uttered:
+              utter_name: "utter_ask_credit_card_type"
+
+      - user: "Visa"
+        assertions:
+          - slot_was_set:
+              - name: "credit_card_type"
+                value: "Visa"
+          - bot_uttered:
+              utter_name: "utter_ask_delivery_method"
+
+      - user: "at home"
+        assertions:
+          - slot_was_set:
+              - name: "delivery_method"
+                value: "Home"
+          - bot_uttered:
+              utter_name: "utter_ask_home_address"
+
+      - user: "123 Main St"
+        assertions:
+          - slot_was_set:
+              - name: "home_address"
+                value: "123 Main St"
+          - bot_uttered:
+              utter_name: "utter_recap"
+          - bot_uttered:
+              utter_name: "utter_ask_confirm_recap"
+
+      - user: "No"
+        assertions:
+          - slot_was_set:
+              - name: "confirm_recap"
+                value: false
+          - bot_uttered:
+              utter_name: "utter_more_help_needed_handoff_pattern"

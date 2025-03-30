@@ -45,6 +45,6 @@ RUN chown -R node:node $HOMEDIR && \
     exec su-exec node "$@"
 
 # ----------------------------------------------------------------------
-# Define the container's CMD.
+# Define the container's entry point.
 # ----------------------------------------------------------------------
-CMD ["sh", "-c", "npm install"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]

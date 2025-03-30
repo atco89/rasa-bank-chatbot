@@ -56,7 +56,7 @@ rbc exec c=node
 Then, inside the node container, run:
 
 ```
-npm run dev
+npm ci && npm run dev
 ```
 
 Upon a successful installation, you can access the following services:

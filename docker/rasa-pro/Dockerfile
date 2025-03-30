@@ -1,17 +1,12 @@
 # ----------------------------------------------------------------------
-# Start from the Rasa Pro full version image.
-# ----------------------------------------------------------------------
-FROM rasa/rasa-pro:3.11.4
-
-# ----------------------------------------------------------------------
-# Metadata: Maintainer of the Dockerfile.
-# ----------------------------------------------------------------------
-LABEL maintainer="Aleksandar Rakić <aleksandar.rakic@yahoo.com>"
-
-# ----------------------------------------------------------------------
 # Switch to the root user to perform installations and configuration.
 # ----------------------------------------------------------------------
 USER root
+
+# ----------------------------------------------------------------------
+# Promeni vlasništvo direktorijuma pypred tako da non-root korisnik ima pristup.
+# ----------------------------------------------------------------------
+RUN chown -R 1001:1001 /opt/venv/lib/python3.10/site-packages/pypred
 
 # ----------------------------------------------------------------------
 # Define build-time arguments with default values.
@@ -25,6 +20,7 @@ ARG HOMEDIR="/app"
 # ----------------------------------------------------------------------
 ENV OPENAI_API_KEY=$OPENAI_API_KEY \
     RASA_PRO_LICENSE=$RASA_PRO_LICENSE \
+    RASA_PRO_BETA_E2E_ASSERTIONS=true \
     LLM_API_HEALTH_CHECK=true \
     HOMEDIR=$HOMEDIR
 
@@ -40,13 +36,10 @@ USER 1001
 
 # ----------------------------------------------------------------------
 # Define the entrypoint for the container.
-# This allows the container to be run with additional arguments if needed.
 # ----------------------------------------------------------------------
 ENTRYPOINT ["rasa"]
 
 # ----------------------------------------------------------------------
 # Set the default command for the container.
-# This command starts the Rasa server with logging, CORS enabled,
-# API access enabled, and debug mode on.
 # ----------------------------------------------------------------------
 CMD ["run", "--log-file", "out.log", "--cors", "*", "--enable-api", "--debug"]
