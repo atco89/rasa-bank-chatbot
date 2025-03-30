@@ -44,7 +44,7 @@ rbc setup h=1
 
 ---
 > PLEASE BE AWARE THAT THE COMMAND `rbc setup h=1` WILL REMOVE ALL EXISTING CONTAINERS, VOLUMES, DATABASES, AND GENERATED
-> FILES RELATED TO THIS PROJECT.
+> FILES.
 ---
 
 After installation, bundle the JavaScript files with:
