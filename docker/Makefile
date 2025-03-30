@@ -3,7 +3,7 @@
 # --------------------------------------------------
 
 MAKEFLAGS 				+= --no-print-directory
-DOCKER_DIR         		:= $(RASA_DIR)/docker
+DOCKER_DIR         		:= $(RBC_DIR)/docker
 ENV_FILE_PATH      		:= $(DOCKER_DIR)/.env
 APP_PLATFORM 			:= linux/$(shell uname -m | sed 's/^x86_64/amd64/;s/^aarch64/arm64/')
 
@@ -98,60 +98,49 @@ clean:
 remove:
 	rm -rf \
 		$(DOCKER_DIR)/database/postgres \
-		$(RASA_DIR)/rasa/.cache \
-		$(RASA_DIR)/rasa/.config \
-		$(RASA_DIR)/rasa/.keras \
-		$(RASA_DIR)/rasa/.rasa \
-		$(RASA_DIR)/rasa/out.log \
-		$(RASA_DIR)/webchat/node_modules \
-		$(RASA_DIR)/webchat/public
+		$(RBC_DIR)/rasa/.cache \
+		$(RBC_DIR)/rasa/.config \
+		$(RBC_DIR)/rasa/.keras \
+		$(RBC_DIR)/rasa/.rasa \
+		$(RBC_DIR)/rasa/out.log \
+		$(RBC_DIR)/webchat/node_modules \
+		$(RBC_DIR)/webchat/public
 
 .PHONY: set-secure-permissions # Set correct file and directory permissions.
 set-secure-permissions:
-	@echo "Applying secure permissions to $(RASA_DIR)..."
-	@chown -R $(shell whoami):$(shell id -gn) $(RASA_DIR) \
-		|| sudo chown -R $(shell whoami):$(shell id -gn) $(RASA_DIR)
-	@find $(RASA_DIR) -type f -exec chmod 0644 {} \;
-	@find $(RASA_DIR) -type d -exec chmod 0755 {} \;
-	@find $(RASA_DIR) -type f \( -name "*.key" -o -name "*.env" \) -exec chmod 0640 {} \;
+	@echo "Applying secure permissions to $(RBC_DIR)..."
+	@chown -R $(shell whoami):$(shell id -gn) $(RBC_DIR) \
+		|| sudo chown -R $(shell whoami):$(shell id -gn) $(RBC_DIR)
+	@find $(RBC_DIR) -type f -exec chmod 0644 {} \;
+	@find $(RBC_DIR) -type d -exec chmod 0755 {} \;
+	@find $(RBC_DIR) -type f \( -name "*.key" -o -name "*.env" \) -exec chmod 0640 {} \;
 	@echo "Secure permissions applied successfully."
 
 # --------------------------------------------------
 # Docker management commands
 # --------------------------------------------------
 
-.PHONY: setup|h,f,c,p # Initialize the application environment.
+.PHONY: setup # Initialize the application environment.
 setup:
-	@start=$$(date +%s); \
-	read -p "This command will remove all containers, images, networks, and volumes from this machine. \
-	Are you sure you want to proceed? (y/yes): " confirmation; \
+	@read -p "This command will remove all containers, images, networks, and volumes from this machine. Are you sure you want to proceed? (y/yes): " confirmation; \
 	if [ "$$confirmation" != "y" ] && [ "$$confirmation" != "yes" ]; then \
 		echo "Action canceled."; \
 		exit 1; \
 	fi; \
-	$(MAKE) \
-		validate \
-		clean || exit 1; \
-	if [ "$(h)" = "1" ]; then \
+	$(MAKE) validate clean || exit 1; \
+	if [ "$$h" = "1" ]; then \
 		$(MAKE) remove || exit 1; \
 	fi; \
-	$(MAKE) build; \
-	end=$$(date +%s); \
-	duration=$$((end - start)); \
-	minutes=$$((duration / 60)); \
-	seconds=$$((duration % 60)); \
-	$(call line_break); \
-	echo "Initialization completed in $$minutes minutes and $$seconds seconds."; \
-	echo "You can access the application at: \033]8;;https://localhost\033\\https://localhost\033]8;;\033\\"; \
-	$(call line_break)
+	$(MAKE) build
+
 
 .PHONY: build # Build and start Docker containers.
 build:
-	RASA_PRO_BETA_E2E_ASSERTIONS=true \
+	RASA_PRO_BETA_E2E_ASSERTIONS=1 \
 	DOCKER_BUILDKIT=1 \
 	APP_PLATFORM=$(APP_PLATFORM) \
 	docker compose \
-		--project-name rasa \
+		--project-name rbc \
 		--file $(DOCKER_DIR)/docker-compose.yml \
 		--env-file $(ENV_FILE_PATH) \
 		--compatibility up \
@@ -170,39 +159,39 @@ status:
 	docker network ls
 	@$(call line_break)
 
-.PHONY: exec|c # Open a shell session in a specified container.
+.PHONY: exec # Open a shell session in a specified container.
 exec:
 	$(call check_required_variable, c)
 	docker exec -it $(c) sh
 
-.PHONY: logs|c # Display logs for a specific container.
+.PHONY: logs # Display logs for a specific container.
 logs:
 	$(call check_required_variable, c)
 	docker logs $(c)
 
-.PHONY: restart|p,f,c # Restart a specified container.
+.PHONY: restart # Restart a specified container.
 restart:
 	APP_PLATFORM=$(APP_PLATFORM) \
 	docker compose \
-		--project-name $(if $(p),$(p),local) \
-		--file $(if $(f),$(f),$(DOCKER_DIR)/docker-compose.yml) \
-		--env-file $(ENV_FILE_PATH) restart $(c)
+		--project-name rbc \
+		--file $(DOCKER_DIR)/docker-compose.yml \
+		--env-file $(ENV_FILE_PATH) restart
 
-.PHONY: down|p,f,c # Stop a specific container.
+.PHONY: down # Stop a specific container.
 down:
 	APP_PLATFORM=$(APP_PLATFORM) \
 	docker compose \
-		--project-name $(if $(p),$(p),local) \
-		--file $(if $(f),$(f),$(DOCKER_DIR)/docker-compose.yml) \
-		--env-file $(ENV_FILE_PATH) down $(c)
+		--project-name rbc \
+		--file $(DOCKER_DIR)/docker-compose.yml \
+		--env-file $(ENV_FILE_PATH) down
 
-.PHONY: up|p,f,c # Start a specific container.
+.PHONY: up # Start a specific container.
 up:
 	APP_PLATFORM=$(APP_PLATFORM) \
 	docker compose \
-		--project-name $(if $(p),$(p),local) \
-		--file $(if $(f),$(f),$(DOCKER_DIR)/docker-compose.yml) \
-		--env-file $(ENV_FILE_PATH) up $(c) \
+		--project-name rbc \
+		--file $(DOCKER_DIR)/docker-compose.yml \
+		--env-file $(ENV_FILE_PATH) up \
 		--detach
 
 .PHONY: platform # Show the current system architecture.
@@ -213,13 +202,6 @@ platform:
 inspect:
 	$(call check_required_variable, c)
 	docker inspect $(c)
-
-.PHONY: npm-run-dev # Install and build assets with node package manager.
-npm-run-dev:
-	docker exec node sh -c "\
-		npm ci && \
-		npm run dev \
-	"
 
 .PHONY: about # Show detailed project environment information.
 about:
